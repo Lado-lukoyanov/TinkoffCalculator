@@ -9,8 +9,6 @@ import UIKit
 
 enum CalculationError: Error {
     case dividedByZero
-    case rangeOverflow
-
 }
 
 enum Operation: String {
@@ -49,10 +47,29 @@ class ViewController: UIViewController {
             return
         }
         
+        if label.text == "Ошибка" {
+            if buttonText == "," {
+                label.text? = "0,"
+                
+            } else {
+                label.text? = buttonText
+                
+            }
+            return
+            
+        }
+        
         if label.text == "0" {
-            label.text = buttonText
+            if buttonText == "," {
+                label.text?.append(buttonText)
+                return
+                
+            }
+            label.text? = buttonText
+            
         } else {
             label.text?.append(buttonText)
+            
         }
      }
     
@@ -87,15 +104,11 @@ class ViewController: UIViewController {
         calculationHistoryItem.append(.number(labelNumber))
         
         do {
-            
             let result = try calculate()
-        
+            
             label.text = numberFormatter.string(from: NSNumber(value: result))
-            
         } catch {
-        
             label.text = "Ошибка"
-            
         }
         
         calculationHistoryItem.removeAll()
@@ -132,11 +145,6 @@ class ViewController: UIViewController {
             else { break }
             
             currentResult = try operation.calculate(currentResult, number)
-            
-            if currentResult > Double.greatestFiniteMagnitude {
-                throw CalculationError.rangeOverflow
-                
-            }
         }
         
         return currentResult
