@@ -9,11 +9,8 @@ import UIKit
 
 enum CalculationError: Error {
     case dividedByZero
-    case invalidOperation
-    case overflow
-    case underflow
-    case malformedExpression
-    case noInput
+    case rangeOverflow
+
 }
 
 enum Operation: String {
@@ -95,18 +92,6 @@ class ViewController: UIViewController {
         
             label.text = numberFormatter.string(from: NSNumber(value: result))
             
-        } catch CalculationError.dividedByZero {
-        
-            label.text = "Ошибка"
-            
-        } catch CalculationError.malformedExpression {
-        
-            label.text = "Ошибка неправильное выражение"
-            
-        } catch CalculationError.noInput {
-        
-            label.text = "Ошибка нет входных данных"
-            
         } catch {
         
             label.text = "Ошибка"
@@ -136,7 +121,6 @@ class ViewController: UIViewController {
     }
     
     func calculate() throws -> Double {
-        guard !calculationHistoryItem.isEmpty else { throw CalculationError.noInput }
         guard case .number(let firstNumber) = calculationHistoryItem[0] else { return 0}
         
         var currentResult = firstNumber
@@ -148,6 +132,11 @@ class ViewController: UIViewController {
             else { break }
             
             currentResult = try operation.calculate(currentResult, number)
+            
+            if currentResult > Double.greatestFiniteMagnitude {
+                throw CalculationError.rangeOverflow
+                
+            }
         }
         
         return currentResult
